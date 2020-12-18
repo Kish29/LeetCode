@@ -9,9 +9,10 @@
 int main(int argc, char **argv) {
     srand(time(nullptr));
     vector<int> v;
-    int n = 100;
-    for (int i = 0; i < n; ++i) {
-        v.push_back(rand() % n);
+    int n;
+    for (int i = 0; i < 2; ++i) {
+        cin >> n;
+        v.push_back(n);
     }
     sort(v.begin(), v.end());
     for (int vi : v) {

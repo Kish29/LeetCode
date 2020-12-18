@@ -135,7 +135,8 @@ int removeDuplicates(vector<int> &nums) {
     /* 双指针 */
     int p_first = 0, p_second = p_first + 1;
     for (; p_second < len; ++p_second) {
-        while (nums[p_first] == nums[p_second] && p_second < len)
+        /* 请注意，在数组的访问中，此种访问最容易发生数组的越界访问，必须把数组的边界判断放在最前面！ */
+        while (p_second < len && nums[p_first] == nums[p_second])
             p_second++;
         /* 如果已经到末尾，说明后面全是重复数字 */
         if (p_second == len)

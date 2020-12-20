@@ -87,9 +87,31 @@ ListNode *detectCycle(ListNode *head);
 int climbStairs(int n);
 
 /* 53 */
-int maxSubArray(vector<int>& nums);
+int maxSubArray(vector<int> &nums);
 
 /* 300 */
-int lengthOfLIS(vector<int>& nums);
+int lengthOfLIS(vector<int> &nums);
+
+/* 120 */
+int minimumTotal(vector<vector<int>> &triangle);
+
+/* 64 */
+int minPathSum(vector<vector<int>> &grid);
+
+/* 198 */
+int rob(vector<int> &nums);
+
+/***********************************字符串系列***********************************/
+/* 344 */
+void reverseString(vector<char> &s);
+
+/* 387 */
+int firstUniqChar(string s);
+
+/***********************************特殊思维***********************************/
+/* 231 */
+bool isPowerOfTwo(int n);
+
+bool isPowerOfTwo_2(int n);
 
 #endif //LEETCODE_LEETCODE_H

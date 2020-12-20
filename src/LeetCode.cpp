@@ -373,6 +373,29 @@ int maxSubArray(vector<int> &nums) {
     return res;
 }
 
+
+/* 该方法适用于连续的递增子数列求解 */
+/* 同理，用一个dp[i]表示以i号结尾的最长上升子序列的长度 */
+// int lengthOfLIS(vector<int> &nums) {
+//     if (nums.empty())
+//         return 0;
+//     if (nums.size() == 1)
+//         return 1;
+//     int len = nums.size();
+//     int *dp = new int[len];
+//     dp[0] = 1;
+//     /* 维护一个最大长度 */
+//     int res = dp[0];
+//     for (int i = 1; i < len; ++i) {
+//         dp[i] = 1;
+//         if (nums[i] > nums[i - 1]) {
+//             dp[i] = max(dp[i - 1] + 1, dp[i]);
+//             res = max(res, dp[i]);
+//         }
+//     }
+//     return res;
+// }
+
 /* 二重循环
  * 时间复杂度为O(n2)*/
 // int lengthOfLIS(vector<int> &nums) {
@@ -429,24 +452,159 @@ int lengthOfLIS(vector<int> &nums) {
     return inc_sequence.size();
 }
 
-/* 该方法适用于连续的递增子数列求解 */
-/* 同理，用一个dp[i]表示以i号结尾的最长上升子序列的长度 */
-// int lengthOfLIS(vector<int> &nums) {
+/* 方法一，累加第0位 */
+bool isPowerOfTwo(int n) {
+    if (n < 0)
+        return false;
+    int bits_len = sizeof(int) * 8;
+    int num_of_1 = 0;
+    for (int i = 0; i < bits_len; ++i) {
+        num_of_1 += (n & 0x00000001);
+        n >>= 1;
+    }
+    return num_of_1 == 1;
+}
+
+/* 二者速度在快速的CPU上几乎相同 */
+
+/* 方法二，利用2的幂次方的数的特性 */
+bool isPowerOfTwo_2(int n) {
+    return n > 0 && (n & (n - 1)) == 0;
+}
+
+/* 从最下层到最上层进行动态规划求解 */
+int minimumTotal(vector<vector<int>> &triangle) {
+    if (triangle.empty())
+        return 0;
+    /* 保存每一层最小值的一维数组，长度为第i层三角树的长度 */
+    /* 初始化 */
+    vector<int> dp;
+    int len = triangle.size();
+    dp.insert(dp.end(), triangle[len - 1].begin(), triangle[len - 1].end());
+    /* 从倒数第2层开始 */
+    int sub_len;
+    for (int i = len - 2; i >= 0; i--) {
+        sub_len = triangle[i].size();
+        for (int j = 0; j < sub_len; ++j) {
+            dp[j] = min(triangle[i][j] + dp[j], triangle[i][j] + dp[j + 1]);
+        }
+    }
+    return dp[0];
+}
+
+/* 遍历一次二维数组，每次更新最小值 */
+int minPathSum(vector<vector<int>> &grid) {
+    if (grid.empty())
+        return 0;
+    int len = grid.size();
+    int sub_len;
+    for (int i = 0; i < len; ++i) {
+        sub_len = grid[i].size();
+        for (int j = 0; j < sub_len; ++j) {
+            if (j == 0) {   // 表示第0个数字，只能从上面下来，
+                if (i > 0) // 不是最左上角数字
+                    grid[i][j] += grid[i - 1][j];
+            } else {
+                if (i > 0)  // 不是第一行数字
+                    grid[i][j] = min(grid[i - 1][j] + grid[i][j], grid[i][j - 1] + grid[i][j]);
+                else
+                    grid[i][j] += grid[i][j - 1];
+            }
+        }
+    }
+    return grid[len - 1][sub_len - 1];
+}
+
+// int rob(vector<int> &nums) {
 //     if (nums.empty())
 //         return 0;
+//     /* 为防止下标越界，尽心严格检查 */
+//     /* 只有一个元素的情况 */
 //     if (nums.size() == 1)
-//         return 1;
+//         return nums[0];
+//     /* 两个元素 */
+//     if (nums.size() == 2)
+//         return max(nums[0], nums[1]);
 //     int len = nums.size();
 //     int *dp = new int[len];
-//     dp[0] = 1;
-//     /* 维护一个最大长度 */
-//     int res = dp[0];
-//     for (int i = 1; i < len; ++i) {
-//         dp[i] = 1;
-//         if (nums[i] > nums[i - 1]) {
-//             dp[i] = max(dp[i - 1] + 1, dp[i]);
-//             res = max(res, dp[i]);
-//         }
+//     dp[0] = nums[0];
+//     /* 注意这个地方 */
+//     dp[1] = max(nums[0], nums[1]);
+//     for (int i = 2; i < len; ++i) {
+//         dp[i] = max(dp[i - 1], dp[i - 2] + nums[i]);
 //     }
-//     return res;
+//     return dp[len - 1];
 // }
+
+/* 压缩一下空间 */
+int rob(vector<int> &nums) {
+    if (nums.empty())
+        return 0;
+    /* 为防止下标越界，尽心严格检查 */
+    /* 只有一个元素的情况 */
+    if (nums.size() == 1)
+        return nums[0];
+    /* 两个元素 */
+    if (nums.size() == 2)
+        return max(nums[0], nums[1]);
+    int len = nums.size();
+    /* 注意这个地方 */
+    nums[1] = max(nums[0], nums[1]);
+    for (int i = 2; i < len; ++i) {
+        nums[i] = max(nums[i - 1], nums[i - 2] + nums[i]);
+    }
+    return nums[len - 1];
+}
+
+void reverseString(vector<char> &s) {
+    if (s.empty())
+        return;
+    int left = 0, right = (int) s.size() - 1;
+    char tmp;
+    while (left < right) {
+        /*s[left] ^= s[right];
+        s[right] ^= s[left];
+        s[left] ^= s[right];*/
+        tmp = s[right];
+        s[right] = s[left];
+        s[left] = tmp;
+        left++, right--;
+    }
+}
+
+/* 垃圾算法 */
+// int firstUniqChar(string s) {
+//     if (s.empty())
+//         return -1;
+//     int len = s.length();
+//     auto hash = unordered_map<int, int>();
+//     for (int i = 0; i < len; ++i) {
+//         if (hash.find(s[i] - '0') != hash.end()) {
+//             hash[s[i - '0']]++;
+//         } else
+//             hash[s[i] - '0'] = 1;
+//     }
+//     for (int i = 0; i < len; ++i) {
+//         if (hash[s[i] - '0'] == 1)
+//             return -1;
+//     }
+//     return -1;
+// }
+
+/* 优化算法
+ * 总的来说，核心思想是遍历两遍字符串，找到第一个次数为1的
+ * 返回下标 */
+int firstUniqChar(string s) {
+    /* 统计每个字符出现的次数 */
+    /* 如果是只有英文字符，数组还可以开得更小，26个 */
+    int count[256] = {0};
+    int len = s.length();
+    for (int i = 0; i < len; ++i) {
+        count[s[i]]++;
+    }
+    for (int i = 0; i < len; ++i) {
+        if (count[s[i]] == 1)
+            return i;
+    }
+    return -1;
+}

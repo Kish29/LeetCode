@@ -12,6 +12,7 @@
 
 using namespace std;
 
+/*****************************数组系列****************************************/
 /* 350 */
 vector<int> intersect(vector<int> &nums1, vector<int> &nums2);
 
@@ -53,6 +54,7 @@ vector<int> plusOne(vector<int> &digits);
 vector<int> twoSum(vector<int> &nums, int target);
 /**************************************/
 
+/**********************************链表系列**********************************/
 /* 19 */
 struct ListNode {
     int val;
@@ -74,9 +76,20 @@ ListNode *mergeTwoLists(ListNode *l1, ListNode *l2);
 
 /* 141 */
 bool hasCycle(ListNode *head);
+/**************************************/
 
 /* 142 */
 ListNode *detectCycle(ListNode *head);
+/**************************************/
 
+/***********************************动态规划***********************************/
+/* 70 */
+int climbStairs(int n);
+
+/* 53 */
+int maxSubArray(vector<int>& nums);
+
+/* 300 */
+int lengthOfLIS(vector<int>& nums);
 
 #endif //LEETCODE_LEETCODE_H

@@ -336,3 +336,117 @@ ListNode *detectCycle(ListNode *head) {
     }
     return nullptr;
 }
+
+int climbStairs(int n) {
+    if (n <= 2)
+        return n;
+    int *dp = new int[n + 1];
+    dp[0] = 0;
+    dp[1] = 1;
+    dp[2] = 2;
+    for (int i = 3; i <= n; ++i) {
+        /* 分别对应走到该阶楼梯
+         * 走1步和走2步的情况 */
+        dp[i] = dp[i - 1] + dp[i - 2];
+    }
+    return dp[n];
+}
+
+/* 使用dp[i]表示数组以i号结尾的最大数组和 */
+int maxSubArray(vector<int> &nums) {
+    if (nums.empty())
+        return 0;
+    int len = nums.size();
+    /* 只有一个元素的情况 */
+    if (len == 1)
+        return nums[0];
+    int *dp = new int[len];
+    dp[0] = nums[0];
+    /* 维护最大值 */
+    int res = dp[0];
+    res = max(dp[0], res);
+    for (int i = 1; i < len; ++i) {
+        dp[i] = nums[i];
+        dp[i] = max(dp[i - 1] + nums[i], dp[i]);
+        res = max(dp[i], res);
+    }
+    return res;
+}
+
+/* 二重循环
+ * 时间复杂度为O(n2)*/
+// int lengthOfLIS(vector<int> &nums) {
+//     if (nums.empty())
+//         return 0;
+//     if (nums.size() == 1)
+//         return 1;
+//     int len = nums.size();
+//     int *dp = new int[len];
+//     /* 维护最大值 */
+//     int res = 0;
+//     for (int i = 0; i < len; ++i) {
+//         /* 注意需要遍历前面的所有数字，并且对nums[j]进行分析 */
+//         dp[i] = 1;
+//         for (int j = 0; j < i; ++j) {
+//             if (nums[j] < nums[i]) {
+//                 dp[i] = max(dp[i], dp[j] + 1);
+//             }
+//         }
+//         res = max(res, dp[i]);
+//     }
+//     return res;
+// }
+
+/* 二分查找算法
+ * 维护一个上升的序列
+ * 通过二分查找找到合适的位置将比nums[i]小的数进行替换
+ * 该替换始终替换右边的数
+ * 如果nums[i]比上升子序列的最大值大，直接插入即可 */
+int lengthOfLIS(vector<int> &nums) {
+    if (nums.empty())
+        return 0;
+    if (nums.size() == 1)
+        return 1;
+    vector<int> inc_sequence;
+    inc_sequence.push_back(nums[0]);
+    int left, mid, right;
+    int len = nums.size();
+    for (int i = 1; i < len; ++i) {
+        if (nums[i] > inc_sequence.back()) {
+            inc_sequence.push_back(nums[i]);
+        } else {
+            left = 0, right = (int) inc_sequence.size() - 1;
+            /* 二分查找合适的替换位置 */
+            while (left < right) {
+                mid = (left + right) >> 1;
+                if (nums[i] > inc_sequence[mid])
+                    left = mid + 1;
+                else right = mid;
+            }
+            inc_sequence[left] = nums[i];
+        }
+    }
+    return inc_sequence.size();
+}
+
+/* 该方法适用于连续的递增子数列求解 */
+/* 同理，用一个dp[i]表示以i号结尾的最长上升子序列的长度 */
+// int lengthOfLIS(vector<int> &nums) {
+//     if (nums.empty())
+//         return 0;
+//     if (nums.size() == 1)
+//         return 1;
+//     int len = nums.size();
+//     int *dp = new int[len];
+//     dp[0] = 1;
+//     /* 维护一个最大长度 */
+//     int res = dp[0];
+//     for (int i = 1; i < len; ++i) {
+//         dp[i] = 1;
+//         if (nums[i] > nums[i - 1]) {
+//             dp[i] = max(dp[i - 1] + 1, dp[i]);
+//             res = max(res, dp[i]);
+//         }
+//     }
+//     return res;
+// }

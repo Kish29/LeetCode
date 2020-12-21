@@ -608,3 +608,292 @@ int firstUniqChar(string s) {
     }
     return -1;
 }
+
+
+/* DFS递归算法，不建议 */
+// int maxDepth(TreeNode *root) {
+//     if (root == nullptr)
+//         return 0;
+//     return max(maxDepth(root->left), maxDepth(root->right)) + 1;
+// }
+
+/* DFS用栈转化非递归 */
+/* 非递归解法，利用两个栈，同时记录节点和曾数 */
+int maxDepth(TreeNode *root) {
+    /* 空指针判断 */
+    if (root == nullptr)
+        return 0;
+    stack<TreeNode *> t_stack;
+    stack<int> level;
+    /* 记录当前层数 */
+    int cur_level = 1;
+    /* 维护最大深度 */
+    int max_depth = 0;
+    /* 二者同时入栈 */
+    t_stack.push(root);
+    level.push(cur_level);
+    /* 进行DFS */
+    TreeNode *p_node;
+    while (!t_stack.empty()) {
+        /* 同时出栈 */
+        p_node = t_stack.top();
+        cur_level = level.top();
+        t_stack.pop(), level.pop();
+        /* 更新最大深度 */
+        max_depth = max(max_depth, cur_level);
+        /* 先压右子树（前序遍历） */
+        if (p_node->right != nullptr) {
+            t_stack.push(p_node->right);
+            level.push(cur_level + 1);
+        }
+        if (p_node->left != nullptr) {
+            t_stack.push(p_node->left);
+            level.push(cur_level + 1);
+        }
+    }
+    return max_depth;
+}
+
+/* DFS递归解法 */
+vector<vector<int>> levelOrder(TreeNode *root) {
+    vector<vector<int>> res;
+//    return dfs(root, 0, res);
+    return bfs(root);
+}
+
+vector<vector<int>> dfs(TreeNode *root, int level, vector<vector<int>> &res) {
+    if (root == nullptr)
+        return res;
+    /* 首先需要进行层数判断 */
+    if (res.size() == level) {   // 说明还没有添加本层节点
+        vector<int> cur_level;
+        cur_level.push_back(root->val);
+        res.push_back(cur_level);
+    } else {
+        res[level].push_back(root->val);
+    }
+    res = dfs(root->left, level + 1, res);
+    res = dfs(root->right, level + 1, res);
+    return res;
+}
+
+/* BFS解法 */
+/* BFS用递归转化非递归 */
+vector<vector<int>> bfs(TreeNode *root) {
+    vector<vector<int>> res;
+    if (root == nullptr)
+        return res;
+    /* 记录层数 */
+    queue<int> levels;
+    int tmp;
+    queue<TreeNode *> t_queue;
+    t_queue.push(root);
+    levels.push(0);
+
+    /* BFS遍历 */
+    TreeNode *p_node;
+    while (!t_queue.empty()) {
+        /* 取队列第一个元素 */
+        p_node = t_queue.front();
+        t_queue.pop();
+        tmp = levels.front();
+        if (res.size() == tmp) { //说明还没有创建本层遍历结果
+            levels.pop();
+            vector<int> cur_level;
+            cur_level.push_back(p_node->val);
+            res.push_back(cur_level);
+        } else {
+            res[tmp].push_back(p_node->val);
+            levels.pop();
+        }
+        if (p_node->left != nullptr) {
+            t_queue.push(p_node->left);
+            levels.push(tmp + 1);
+        }
+        if (p_node->right != nullptr) {
+            t_queue.push(p_node->right);
+            levels.push(tmp + 1);
+        }
+    }
+    return res;
+}
+
+/* 优化BFS算法 */
+vector<vector<int>> optimized_bfs(TreeNode *root) {
+    vector<vector<int>> res;
+    if (root == nullptr)
+        return res;
+    queue<TreeNode *> t_queue;
+    t_queue.push(root);
+    int cur_level_size;
+    TreeNode *p_node;
+    while (!t_queue.empty()) {
+        cur_level_size = t_queue.size();
+        /* 新建一个vector*/
+        res.emplace_back();
+        for (int i = 0; i < cur_level_size; ++i) {
+            p_node = t_queue.front();
+            res.back().push_back(p_node->val);
+            t_queue.pop();
+            /* 必须在这里插入队列中 */
+            if (p_node->left != nullptr) {
+                t_queue.push(p_node->left);
+            }
+            if (p_node->right != nullptr) {
+                t_queue.push(p_node->right);
+            }
+        }
+    }
+    return res;
+}
+
+/* DFS递归搜索 */
+/* 注意重点，对于每个节点
+ * 我们必须传递给左子树当前最大值
+ * 右子树当前最小值 */
+bool isValidBST(TreeNode *root) {
+    return isBST(root, INT64_MIN, INT64_MAX);
+}
+
+bool isBST(TreeNode *cur, long long min, long long max) {
+    if (cur == nullptr)
+        return true;
+    /* 对于左子树，如果给出的最大值小于了当前的数，说明左子树包含一个数大于之前的父节点的值
+     * 同理，对于右子树，如果给出的最小值大于了当前正在遍历的数节点，说明右子树包含一个数小于之前的父节点的值 */
+    if (min >= cur->val || max <= cur->val)
+        return false;
+    return isBST(cur->left, min, cur->val) && isBST(cur->right, cur->val, max);
+}
+
+/* DFS递归搜索 */
+/* 注意重点，对于每个节点
+ * 我们必须传递给左子树当前最大值
+ * 右子树当前最小值 */
+bool isValidBST_2(TreeNode *root) {
+    return isBST_2(root, INT64_MAX, INT64_MIN);
+}
+
+bool isBST_2(TreeNode *cur, long long min, long long max) {
+    if (cur == nullptr)
+        return true;
+    /* 或者换一种思维，如果当前值大于了给出的最小值或者小于了给出的最大值，不满足要求 */
+    if (cur->val >= min || cur->val <= max)
+        return false;
+    return isBST_2(cur->left, cur->val, max) && isBST_2(cur->right, min, cur->val);
+}
+
+/* 栈的非递归中序遍历
+ * 中序遍历为升序！！！ */
+bool isValidBST_Inorder(TreeNode *root) {
+    stack<TreeNode *> t_stack;
+    long long prev_val = INT64_MIN;
+    while (!t_stack.empty() || root != nullptr) {
+        /* 压入左节点 */
+        while (root != nullptr) {
+            t_stack.push(root);
+            root = root->left;
+        }
+        /* 取出栈顶 */
+        root = t_stack.top();
+        t_stack.pop();
+        if (root->val <= prev_val)
+            return false;
+        /* 更新最小值 */
+        prev_val = root->val;
+        /* 检查右节点 */
+        root = root->right;
+    }
+    return true;
+}
+
+/* 前序遍历非递归解法 */
+vector<int> preorderTraversal(TreeNode *root) {
+    vector<int> res;
+    if (root == nullptr)
+        return res;
+    stack<TreeNode *> t_stack;
+    t_stack.push(root);
+    while (!t_stack.empty()) {
+        root = t_stack.top();
+        t_stack.pop();
+        res.push_back(root->val);
+        /* 右子树先进栈 */
+        if (root->right) {
+            t_stack.push(root->right);
+        }
+        if (root->left) {
+            t_stack.push(root->left);
+        }
+    }
+    return res;
+}
+
+/* 中序遍历非递归解法 */
+vector<int> inorderTraversal(TreeNode *root) {
+    vector<int> res;
+    stack<TreeNode *> t_stack;
+    while (!t_stack.empty() || root) {
+        /* 所有左子树进栈 */
+        while (root) {
+            t_stack.push(root);
+            root = root->left;
+        }
+        /* 取出栈顶节点 */
+        root = t_stack.top();
+        t_stack.pop();
+        res.push_back(root->val);
+        /* 检查右子树 */
+        root = root->right;
+    }
+    return res;
+}
+
+TreeNode *searchBST_recursive(TreeNode *root, int val) {
+    if (root == nullptr)
+        return nullptr;
+    if (val == root->val)
+        return root;
+    if (val > root->val)
+        return searchBST_recursive(root->right, val);
+    else
+        return searchBST_recursive(root->left, val);
+    return nullptr;
+}
+
+TreeNode *searchBST(TreeNode *root, int val) {
+    while (root != nullptr) {
+        if (val == root->val)
+            return root;
+        if (val > root->val)
+            root = root->right;
+        else root = root->left;
+    }
+    return root;
+}
+
+/* 后续遍历的巧妙思路，用nullptr作为二次访问标志 */
+vector<int> postorderTraversal(TreeNode *root) {
+    vector<int> res;
+    if (root == nullptr)
+        return res;
+    stack<TreeNode *> t_stack;
+    t_stack.push(root);
+    while (!t_stack.empty()) {
+        root = t_stack.top();
+        t_stack.pop();
+        if (root != nullptr) {
+            t_stack.push(root);
+            /* 压入标志nullptr */
+            t_stack.push(nullptr);
+            if (root->right)
+                t_stack.push(root->right);
+            if (root->left)
+                t_stack.push(root->left);
+        } else {
+            root = t_stack.top();
+            t_stack.pop();
+            res.push_back(root->val);
+        }
+    }
+    return res;
+}

@@ -897,3 +897,88 @@ vector<int> postorderTraversal(TreeNode *root) {
     }
     return res;
 }
+
+/* 优秀！！！哈哈哈！！！ */
+TreeNode *deleteNode(TreeNode *root, int key) {
+    if (root == nullptr)
+        return nullptr;
+    /* 左子树查找 */
+    if (key < root->val) {
+        root->left = deleteNode(root->left, key);
+        return root;
+    }
+    /* 右子树查找 */
+    if (key > root->val) {
+        root->right = deleteNode(root->right, key);
+        return root;
+    }
+    /* 此时已经找到了，隐含 key == root->val 的条件 */
+    /* 防止内存溢出 */
+    TreeNode *tmp;
+    /* 左子树为空 */
+    if (root->left == nullptr) {
+        tmp = root;
+        root = root->right;
+        delete tmp;
+        return root;
+    }
+    /* 右子树为空 */
+    if (root->right == nullptr) {
+        tmp = root;
+        root = root->left;
+        delete tmp;
+        return root;
+    }
+    /* 左右子树均不为空 */
+    /* 查找后继节点 */
+    // auto *scs_node = root->right;
+    // while (scs_node->left) {
+    //     scs_node = scs_node->left;
+    // }
+    // /* 赋值 */
+    // root->val = scs_node->val;
+    // /* 从右子树中删除最小的后继节点 */
+    // root->right = deleteMinNode(root->right);
+
+
+    /* 查找前驱节点 */
+    auto *prcs_node = root->left;
+    while (prcs_node->right) {
+        prcs_node = prcs_node->right;
+    }
+    /* 赋值 */
+    root->val = prcs_node->val;
+    /* 从左子树中删除最大的前驱节点 */
+    root->left = deleteMaxNode(root->left);
+    return root;
+}
+
+TreeNode *deleteMinNode(TreeNode *root) {
+    if (root == nullptr)
+        return nullptr;
+    /* 不存在左子树的情况 */
+    if (root->left == nullptr) {
+        /* 删除自身节点 */
+        auto *tmp = root;
+        root = root->right;
+        delete tmp;
+        return root;
+    }
+    root->left = deleteMinNode(root->left);
+    return root;
+}
+
+/* 从左子树中删除最大前驱节点 */
+TreeNode *deleteMaxNode(TreeNode *root) {
+    if (root == nullptr)
+        return nullptr;
+    /* 不存在右子树 */
+    if (root->right == nullptr) {
+        auto *tmp = root;
+        root = root->left;
+        delete tmp;
+        return root;
+    }
+    root->right = deleteMaxNode(root->right);
+    return root;
+}

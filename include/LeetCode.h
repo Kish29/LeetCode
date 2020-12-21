@@ -162,23 +162,33 @@ bool isBST_2(TreeNode *cur, long long min, long long max);
 
 /* 144 */
 /* 二叉树的前序遍历非递归，必须掌握！！！ */
-vector<int> preorderTraversal(TreeNode* root);
+vector<int> preorderTraversal(TreeNode *root);
 /**************************************/
 
 /* 94 */
 /* 二叉树的中序遍历非递归算法，必须掌握！！！ */
-vector<int> inorderTraversal(TreeNode* root);
+vector<int> inorderTraversal(TreeNode *root);
 /**************************************/
 
 /* 145 */
 /* 二叉树的后序遍历非递归算法，必须掌握！！！ */
-vector<int> postorderTraversal(TreeNode* root);
+vector<int> postorderTraversal(TreeNode *root);
+/**************************************/
 
 /* 700 */
-TreeNode* searchBST_recursive(TreeNode* root, int val);
+TreeNode *searchBST_recursive(TreeNode *root, int val);
 
-TreeNode* searchBST(TreeNode* root, int val);
+TreeNode *searchBST(TreeNode *root, int val);
+/**************************************/
 
+/* 450 */
+TreeNode *deleteNode(TreeNode *root, int key);
+
+/* 删除二叉查找树右子树的最小节点 */
+TreeNode *deleteMinNode(TreeNode *root);
+
+/* 删除二叉查找树左子树的最大节点 */
+TreeNode *deleteMaxNode(TreeNode *root);
 /**************************************/
 
 /***********************************特殊思维***********************************/

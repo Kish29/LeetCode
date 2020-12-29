@@ -2,44 +2,72 @@
 // Created by 87569 on 2020/12/18.
 //
 
+#include <utility>
+
 #include "LeetCode.h"
 #include "iostream"
 #include "sys/time.h"
+//#include "Others.h"
+#include "basic_heap.h"
 
-const int max_n = 1e6;
+class student {
+private:
+    string name;
+    long long student_id;
 
-const string s = "0123456789abcdefghijklmnopqrstuvwxyz";
-const int s_len = s.size();
+public:
+    student() : name("default_student"), student_id(0) {}
+
+    student(string &name, long long id) : name(name), student_id(id) {}
+
+    student(string name, long long id) : name(std::move(name)), student_id(id) {}
+
+    friend bool operator<(const student &s1, const student &s2) {
+        return s1.student_id < s2.student_id;
+    }
+
+    friend bool operator<=(const student &s1, const student &s2) {
+        return s1.student_id <= s2.student_id;
+    }
+
+    friend bool operator>=(const student &s1, const student &s2) {
+        return s1.student_id >= s2.student_id;
+    }
+
+    friend bool operator>(const student &s1, const student &s2) {
+        return s1.student_id > s2.student_id;
+    }
+
+    friend bool operator!=(const student &s1, const student &s2) {
+        return s1.student_id != s2.student_id;
+    }
+
+    friend bool operator==(const student &s1, const student &s2) {
+        return s1.student_id == s2.student_id;
+    }
+
+    friend void operator<<(ostream &os, const student &s) {
+        os << "{name: " << s.name << ", student_id: " << s.student_id << "}" << endl;
+    }
+
+};
+
+using namespace my_data_structure;
 
 int main(int argc, char **argv) {
     srand(time(nullptr));
-    // vector<int> nums1, nums2;
 
-    // vector<char> chars;
-    // int num;
-    // for (int i = 0; i < 1e7; ++i) {
-    //     chars.push_back(s[rand() % s_len]);
-    // }
-    auto *root = new TreeNode;
-    root->val = 1;
-    root->left = new TreeNode;
-    root->left->val = 2;
-    root->right = new TreeNode;
-    root->right->val = 3;
-    root->left->left = new TreeNode;
-    root->left->left->val = 4;
-    root->left->right = new TreeNode;
-    root->left->right->val = 5;
+    int num;
+    scanf("%d", &num);
+    unique_ptr<min_heap<student>>
+            h(new min_heap<student>(num));
+    for (int i = 0; i < num; ++i) {
+        h->insert(student("tom", i + 1));
+    }
+    h->print();
 
     timeval start{}, end{};
     gettimeofday(&start, nullptr);
-    // intersect(nums2, nums2);
-//    plusOne(nums1);
-//    detectCycle(head);
-//    lengthOfLIS(nums1);
-//    rob(nums1);
-//    reverseString(chars);
-    levelOrder(root);
     gettimeofday(&end, nullptr);
     long time = 1000000 * (end.tv_sec - start.tv_sec) + end.tv_usec - start.tv_usec;
     printf("duration time -> %ld ms", time / 1000);

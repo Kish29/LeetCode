@@ -219,13 +219,13 @@ ListNode *removeNthFromEnd(ListNode *head, int n) {
     if (head == nullptr)
         return nullptr;
     /* 设置哨兵节点 */
-    auto *p_senitel = new ListNode;
-    p_senitel->next = head;
+    auto *p_sentinel = new ListNode;
+    p_sentinel->next = head;
 
     /* 待删除节点 */
     auto *d_node = head;
     /* 待删除节点上一个节点 */
-    auto *d_node_prev = p_senitel;
+    auto *d_node_prev = p_sentinel;
     /* 指示指针 */
     auto *p_second = head;
 
@@ -247,18 +247,18 @@ ListNode *removeNthFromEnd(ListNode *head, int n) {
     }
     /* 走到末尾了 */
     d_node_prev->next = d_node_prev->next->next;
-    return p_senitel->next;
+    return p_sentinel->next;
 }
 
 /* 使用哨兵节点
- * 它的下一个节点是两个数组的偏小的节点 */
+ * cur下一个节点是两个数组的偏小的节点 */
 ListNode *mergeTwoLists(ListNode *l1, ListNode *l2) {
     /* 首先考虑其中一个为空的情况 */
     if (l1 == nullptr || l2 == nullptr)
         return l1 == nullptr ? l2 : l1;
-    auto *p_senitel = new ListNode;
-    auto *cur = p_senitel;
-    /* p_senitel 每次更新二者较小的节点 */
+    auto *p_sentinel = new ListNode;
+    auto *cur = p_sentinel;
+    /* p_sentinel 每次更新二者较小的节点 */
     while (l1 != nullptr && l2 != nullptr) {
         if (l1->val < l2->val) {
             cur->next = l1;
@@ -275,7 +275,7 @@ ListNode *mergeTwoLists(ListNode *l1, ListNode *l2) {
         cur->next = l2;
     else
         cur->next = l1;
-    return p_senitel->next;
+    return p_sentinel->next;
 }
 
 /* 使用快慢双指针 */
@@ -370,9 +370,28 @@ int maxSubArray(vector<int> &nums) {
         dp[i] = max(dp[i - 1] + nums[i], dp[i]);
         res = max(dp[i], res);
     }
+    /* 防止内存泄露 */
+    delete[] dp;
+    dp = nullptr;
     return res;
 }
 
+int max_sub_array(vector<int> &nums) {
+    if (nums.empty())
+        return 0;
+    int len = nums.size();
+    int cur_sum = nums[0];
+    int res = cur_sum;
+    for (int i = 1; i < len; ++i) {
+        if (cur_sum < 0)
+            cur_sum = nums[i];
+        else
+            cur_sum += nums[i];
+        if (res < cur_sum)
+            res = cur_sum;
+    }
+    return res;
+}
 
 /* 该方法适用于连续的递增子数列求解 */
 /* 同理，用一个dp[i]表示以i号结尾的最长上升子序列的长度 */
@@ -729,7 +748,7 @@ vector<vector<int>> optimized_bfs(TreeNode *root) {
     TreeNode *p_node;
     while (!t_queue.empty()) {
         cur_level_size = t_queue.size();
-        /* 新建一个vector*/
+        /* 新建一个空vector*/
         res.emplace_back();
         for (int i = 0; i < cur_level_size; ++i) {
             p_node = t_queue.front();
@@ -899,6 +918,7 @@ vector<int> postorderTraversal(TreeNode *root) {
 }
 
 /* 优秀！！！哈哈哈！！！ */
+/* 优秀你麻痹，都野指针了，还尼玛优秀，傻逼 */
 TreeNode *deleteNode(TreeNode *root, int key) {
     if (root == nullptr)
         return nullptr;
@@ -920,6 +940,8 @@ TreeNode *deleteNode(TreeNode *root, int key) {
         tmp = root;
         root = root->right;
         delete tmp;
+        /* 注意野指针     */
+        tmp = nullptr;
         return root;
     }
     /* 右子树为空 */
@@ -927,6 +949,7 @@ TreeNode *deleteNode(TreeNode *root, int key) {
         tmp = root;
         root = root->left;
         delete tmp;
+        tmp = nullptr;
         return root;
     }
     /* 左右子树均不为空 */
@@ -982,3 +1005,351 @@ TreeNode *deleteMaxNode(TreeNode *root) {
     root->right = deleteMaxNode(root->right);
     return root;
 }
+
+bool isBalanced(TreeNode *root) {
+    /* 空树 */
+    if (root == nullptr) {
+        return true;
+    }
+    int gap = depth_of_tree(root->left) - depth_of_tree(root->right);
+    if (gap < -1 || gap > 1)
+        return false;
+    return isBalanced(root->left) && isBalanced(root->right);
+}
+
+
+/* DFS遍历 */
+int max_depth_copy(TreeNode *root) {
+    if (root == nullptr)
+        return 0;
+    stack<TreeNode *> t_stack;
+    stack<int> levels;
+    /* 同时入栈 */
+    int cur_level = 1;
+    t_stack.push(root);
+    levels.push(cur_level);
+    /* 维护最大值 */
+    int max_depth = 0;
+    TreeNode *p_node;
+    while (!t_stack.empty()) {
+        p_node = t_stack.top();
+        cur_level = levels.top();
+        t_stack.pop();
+        levels.pop();
+        max_depth = max(max_depth, cur_level);
+        if (p_node->right) {
+            t_stack.push(p_node->right);
+            levels.push(cur_level + 1);
+        }
+        if (p_node->left) {
+            t_stack.push(p_node->left);
+            levels.push(cur_level + 1);
+        }
+    }
+    return max_depth;
+}
+
+/* 查找一棵树的最大深度 */
+int depth_of_tree(TreeNode *root) {
+    if (root == nullptr)
+        return 0;
+    int left_depth = depth_of_tree(root->left) + 1;
+    int right_depth = depth_of_tree(root->right) + 1;
+    return max(left_depth, right_depth);
+}
+
+/* 满二叉树节点个数m和高度h的关系
+ * m = 2^h - 1*/
+int countNodes(TreeNode *root) {
+    /* 空结点 */
+    if (root == nullptr)
+        return 0;
+    int left_depth = complete_or_full_BT_depth(root->left);
+    int right_depth = complete_or_full_BT_depth(root->right);
+    if (left_depth == right_depth) {    // 此时左子树一定是满二叉树
+        return countNodes(root->right) + (1 << left_depth);
+    } else {
+        return countNodes(root->left) + (1 << right_depth);
+    }
+}
+
+int complete_or_full_BT_depth(TreeNode *root) {
+    if (root == nullptr)
+        return 0;
+    int depth = 1;
+    while (root->left) {    // 完全二叉树或者满二叉树可以通过该方式计算
+        depth++;
+        root = root->left;
+    }
+    return depth;
+}
+
+/* 使用后序遍历算法即可 */
+TreeNode *pruneTree(TreeNode *root) {
+    if (root == nullptr)
+        return root;
+    stack<TreeNode *> t_stack;
+    t_stack.push(root);
+    while (!t_stack.empty()) {
+        root = t_stack.top();
+        t_stack.pop();
+        if (root) {
+            /* 再次入栈，并压入标志位 */
+            t_stack.push(root);
+            t_stack.push(nullptr);
+            if (root->right)
+                t_stack.push(root->right);
+            if (root->left)
+                t_stack.push(root->left);
+        } else {
+            root = t_stack.top();
+            t_stack.pop();
+            /* 由于程序的结构问题，要先进行剪枝！！！ */
+            /* 查找已被剪枝的，并将其移除置为空指针 */
+            if (root->left && root->left->val == -1) {
+                delete root->left;
+                root->left = nullptr;
+            }
+            if (root->right && root->right->val == -1) {
+                delete root->right;
+                root->right = nullptr;
+            }
+            if (root->val == 0 && root->left == nullptr && root->right == nullptr) {   // 用-1表示已被剪枝
+                // 注意，由于压栈的是另外的复制指针，所以不能通过这两条语句进行剪枝
+                /*delete root;
+                root = nullptr;*/
+                root->val = -1;
+            }
+        }
+    }
+    /* 最后检查root根节点是否被剪枝 */
+    return root->val == -1 ? nullptr : root;
+}
+
+TreeNode *pruneTreeRecursive(TreeNode *root) {
+    if (root == nullptr)
+        return nullptr;
+    root->left = pruneTreeRecursive(root->left);
+    root->right = pruneTreeRecursive(root->right);
+    if (root->val == 0 && !root->left && !root->right)
+        return nullptr;
+    return root;
+}
+
+vector<int> maxSlidingWindow(vector<int> &nums, int k) {
+    vector<int> res;
+    if (nums.empty())
+        return res;
+    /* 使用双端队列保存最大值下标 */
+    deque<int> max_index;
+    int len = nums.size();
+    for (int i = 0; i < len; ++i) {
+        /* 保证滑动窗口合法性 */
+        if (!max_index.empty() && max_index.front() == i - k) {
+            max_index.pop_front();
+        }
+        /* 维护最大值
+         * 该方式能保证队列末尾元素是最小元素 */
+        while (!max_index.empty() && nums[max_index.back()] < nums[i]) {
+            max_index.pop_back();
+        }
+        /* 压入本次下标 */
+        max_index.push_back(i);
+        /* 压入最大值 */
+        if (i >= k - 1) {
+            res.push_back(nums[max_index.front()]);
+        }
+    }
+    return res;
+}
+
+
+/* 使用first和second构成滑动窗口 */
+int lengthOfLongestSubstring(string &s) {
+    /* 使用hash数组保存下标 */
+    int hash_index[256];
+    /* 数组初始化为- 1 */
+    memset(hash_index, -1, 256 * sizeof(int));
+    int len = s.length();
+    int first = 0;
+    /* 维护一个最大值 */
+    int res = 0;
+    int second;
+    for (second = 0; second < len; ++second) {
+        /* 如果该字母在之前出现过，并且出现的位置在first后面，让cursor重新移动位置 */
+        if (hash_index[s[second]] != -1 && hash_index[s[second]] >= first) {
+            /* 更新max值 */
+            if (second - first > res)
+                res = second - first;
+            /* 更新cursor，移到出现的下一个元素 */
+            first = hash_index[s[second]] + 1;
+        }
+        /* 插入下标 */
+        hash_index[s[second]] = second;
+    }
+    if (res > second - first)
+        return res;
+    return second - first;
+}
+
+double myPow(double x, int n) {
+    if (x == 0 || x == 1)
+        return x;
+    if (x == -1) {
+        if (n % 2 == 0)
+            return 1;
+        return -1;
+    }
+    if (n == 0)
+        return 1;
+    if (n == INT32_MIN || n == INT32_MAX)
+        return 0;
+    double org = x;
+    for (int i = 1; i < abs(n); ++i) {
+        x *= org;
+    }
+    if (n < 0)
+        return 1 / x;
+    return x;
+}
+
+double quick_pow(double x, int n) {
+    /* x的特殊边界 */
+    if (x == 0 || x == 1)
+        return x;
+    if (x == -1) {
+        if (n % 2 == 0)
+            return 1;
+        return -1;
+    }
+    /* n的特殊边界 */
+    if (n == 0)
+        return 1;
+    if (n == INT32_MAX || n == INT32_MIN)
+        return 0;
+    double res = 1;
+    if (n < 0) {
+        x = 1 / x;
+        n = -n;
+    }
+    while (n) {
+        if (n & 1)
+            res *= x;
+        x *= x;
+        n >>= 1;
+    }
+    return res;
+}
+
+int add(int a, int b) {
+    return 0;
+}
+
+ListNode *reverseList(ListNode *head) {
+    if (head == nullptr)
+        return nullptr;
+    auto *second = head->next;
+    /* 先置空
+     * 避免两个节点循环 */
+    head->next = nullptr;
+    ListNode *third;
+    while (second) {
+        third = second->next;
+        second->next = head;
+        /* 先移动head */
+        head = second;
+        second = third;
+    }
+    return head;
+}
+
+void hanota(vector<int> &A, vector<int> &B, vector<int> &C) {
+    if (A.empty())
+        return;
+    int n = A.size();
+    move(n, A, B, C);
+}
+
+void move(int n, vector<int> &A, vector<int> &B, vector<int> &C) {
+    if (n == 1) {
+        C.push_back(A.back());
+        A.pop_back();
+        return;
+    }
+    move(n - 1, A, C, B);       //最上面n-1个移动到B
+    C.push_back(A.back());
+    A.pop_back();
+    move(n - 1, B, A, C);       // B的n-1个移动到C
+}
+
+int maxProfit(int k, vector<int> &prices) {
+    vector<int> cash(k + 1, 0);
+    vector<int> stock(k + 1, INT_MIN);
+    int i;
+    for (int &price : prices) {
+        for (i = 1; i <= k; i++) {
+            stock[i] = max(stock[i], cash[i - 1] - price);
+            cash[i] = max(cash[i], stock[i] + price);
+        }
+    }
+    return cash[k];
+}
+
+int maxProfit2(vector<int> &prices) {
+    /* 同188 */
+    return 0;
+}
+
+int longestConsecutive(vector<int> &nums) {
+    // 空数组情况
+    if (nums.empty())
+        return 0;
+    // hash表
+    // 遍历一遍，求出最大值和最小值
+    int min_ele = INT_MAX, max_ele = INT_MIN;
+    for (int &num : nums) {
+        min_ele = min(min_ele, num);
+        max_ele = max(max_ele, num);
+    }
+    int hash_len = max_ele - min_ele + 1;
+    bool *hash = new bool[hash_len]{false};
+    // 遍历数组
+    for (int &num : nums) {
+        hash[num - min_ele] = true;
+    }
+    int cnt = 0, res = 0;
+    for (int i = 0; i < hash_len; ++i) {
+        if (hash[i]) {
+            cnt++;
+        } else {
+            res = max(res, cnt);
+            /* 清零 */
+            cnt = 0;
+        }
+    }
+    /* 不要忘记更新 */
+    res = max(res, cnt);
+    return res;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

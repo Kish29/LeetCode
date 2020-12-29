@@ -11,6 +11,8 @@
 #include "unordered_map"
 #include "stack"
 #include "queue"
+#include "deque"
+#include "cstring"
 
 using namespace std;
 
@@ -56,6 +58,9 @@ vector<int> plusOne(vector<int> &digits);
 vector<int> twoSum(vector<int> &nums, int target);
 /**************************************/
 
+/* 128 */
+int longestConsecutive(vector<int>& nums);
+
 /**********************************链表系列**********************************/
 /* 19 */
 struct ListNode {
@@ -84,6 +89,9 @@ bool hasCycle(ListNode *head);
 ListNode *detectCycle(ListNode *head);
 /**************************************/
 
+/* 24 */
+ListNode *reverseList(ListNode *head);
+
 /***********************************动态规划***********************************/
 /* 70 */
 int climbStairs(int n);
@@ -91,6 +99,8 @@ int climbStairs(int n);
 
 /* 53 */
 int maxSubArray(vector<int> &nums);
+
+int max_sub_array(vector<int> &nums);
 /**************************************/
 
 /* 300 */
@@ -108,6 +118,13 @@ int minPathSum(vector<vector<int>> &grid);
 /* 198 */
 int rob(vector<int> &nums);
 /**************************************/
+
+
+/* 188 */
+int maxProfit(int k, vector<int>& prices);
+
+int maxProfit2(vector<int>& prices);
+
 
 /***********************************字符串系列***********************************/
 /* 344 */
@@ -191,11 +208,57 @@ TreeNode *deleteMinNode(TreeNode *root);
 TreeNode *deleteMaxNode(TreeNode *root);
 /**************************************/
 
+/* 110 */
+bool isBalanced(TreeNode *root);
+
+int max_depth_copy(TreeNode *root);
+
+int depth_of_tree(TreeNode *root);
+/**************************************/
+
+/* 222 */
+int countNodes(TreeNode *root);
+
+int complete_or_full_BT_depth(TreeNode *root);
+/**************************************/
+
+/* 814 */
+/* 非递归算法 */
+TreeNode *pruneTree(TreeNode *root);
+
+/* 递归版本 */
+TreeNode *pruneTreeRecursive(TreeNode *root);
+
+/**************************************/
+
+/***********************************滑动窗口系列***********************************/
+/* 239 */
+vector<int> maxSlidingWindow(vector<int> &nums, int k);
+
+/* 3 */
+int lengthOfLongestSubstring(string &s);
+
 /***********************************特殊思维***********************************/
 /* 231 */
 bool isPowerOfTwo(int n);
 
 bool isPowerOfTwo_2(int n);
 /**************************************/
+
+/* 50 */
+double myPow(double x, int n);
+
+/* 优化，快速幂 */
+double quick_pow(double x, int n);
+/**************************************/
+
+/* 65 */
+int add(int a, int b);
+/**************************************/
+
+/* tower of hanoi */
+void hanota(vector<int> &A, vector<int> &B, vector<int> &C);
+
+void move(int n, vector<int> &A, vector<int> &B, vector<int> &C);
 
 #endif //LEETCODE_LEETCODE_H

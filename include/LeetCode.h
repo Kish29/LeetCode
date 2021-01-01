@@ -59,7 +59,7 @@ vector<int> twoSum(vector<int> &nums, int target);
 /**************************************/
 
 /* 128 */
-int longestConsecutive(vector<int>& nums);
+int longestConsecutive(vector<int> &nums);
 
 /**********************************链表系列**********************************/
 /* 19 */
@@ -121,9 +121,9 @@ int rob(vector<int> &nums);
 
 
 /* 188 */
-int maxProfit(int k, vector<int>& prices);
+int maxProfit(int k, vector<int> &prices);
 
-int maxProfit2(vector<int>& prices);
+int maxProfit2(vector<int> &prices);
 
 
 /***********************************字符串系列***********************************/
@@ -238,6 +238,17 @@ vector<int> maxSlidingWindow(vector<int> &nums, int k);
 /* 3 */
 int lengthOfLongestSubstring(string &s);
 
+/***********************************二分查找法***********************************/
+int minEatingSpeed(vector<int> &piles, int H);
+
+int speedValid(vector<int> &piles, int speed, int H);
+
+
+/***********************************排序方法***********************************/
+
+/* 164 */
+int maximumGap(vector<int> &nums);
+
 /***********************************特殊思维***********************************/
 /* 231 */
 bool isPowerOfTwo(int n);
@@ -260,5 +271,140 @@ int add(int a, int b);
 void hanota(vector<int> &A, vector<int> &B, vector<int> &C);
 
 void move(int n, vector<int> &A, vector<int> &B, vector<int> &C);
+
+/***********************************面试算法题***********************************/
+/* 18 */
+ListNode *deleteNode(ListNode *head, int val);
+
+/* 237 */
+void deleteNode(ListNode *node);
+
+/* 剑指offer 22 */
+ListNode *getKthFromEnd(ListNode *head, int k);
+
+/* 剑指offer 59 - I */
+vector<int> maxSlidingWindow2(vector<int> &nums, int k);
+
+/**************************************************************************/
+
+/***********************************每日一题***********************************/
+namespace diary_question {
+
+/***********************************1046***********************************/
+    class max_heap {
+
+    private:
+        int *heap{};
+        int heap_len{};
+        int index;
+
+        void heap_up() {
+            int child = index;
+            int parent = (child - 1) / 2;
+            int tmp;
+            while (child > 0) {
+                if (heap[parent] < heap[child]) {
+                    tmp = heap[child];
+                    heap[child] = heap[parent];
+                    heap[parent] = tmp;
+
+                    child = parent;
+                    parent = (parent - 1) / 2;
+                } else break;
+            }
+        }
+
+        void heap_down() {
+            int parent = 0;
+            int child = 2 * parent + 1;
+            int tmp;
+            while (child <= index) {
+                if (child < index && heap[child + 1] > heap[child]) {
+                    child++;
+                }
+                if (heap[parent] < heap[child]) {
+                    tmp = heap[child];
+                    heap[child] = heap[parent];
+                    heap[parent] = tmp;
+
+                    parent = child;
+                    child = 2 * child + 1;
+                } else break;
+            }
+        }
+
+    public:
+        explicit max_heap(int len) : heap_len(len), heap(new int[len]), index(0) {}
+
+        ~max_heap() {
+            delete[] heap;
+        }
+
+        int remove_top() {
+            if (index <= 0)
+                return -1;
+            int r_node = heap[0];
+            index--;
+            heap[0] = heap[index];
+            heap_down();
+            return r_node;
+        }
+
+        void insert(int n) {
+            if (index == heap_len) {
+                if (n >= heap[0])
+                    return;
+                remove_top();
+            }
+            heap[index] = n;
+            heap_up();
+            index++;
+        }
+
+        int size() {
+            return this->index;
+        }
+    };
+
+
+    class Solution {
+    public:
+        int lastStoneWeight(vector<int> &stones) {
+            if (stones.empty())
+                return 0;
+            int len = stones.size();
+            auto *h = new max_heap(len);
+            for (int stone : stones) {
+                h->insert(stone);
+            }
+            int x, y;
+            while (h->size()) {
+                x = h->remove_top();
+                // 如果此时已经空堆
+                if (!h->size())
+                    return x;
+                else {
+                    y = h->remove_top();
+                    if (x != y)
+                        h->insert(x - y);
+                }
+            }
+            return 0;
+        }
+    };
+
+    /* 435 */
+    int eraseOverlapIntervals(vector<vector<int>> &intervals);
+
+    static bool _cmp(vector<int> &a, vector<int> &b);
+
+    /* 605 */
+    bool canPlaceFlowers(vector<int>& flowerbed, int n);
+
+
+/**************************************************************************/
+
+
+}
 
 #endif //LEETCODE_LEETCODE_H

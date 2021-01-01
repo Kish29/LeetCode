@@ -1332,24 +1332,231 @@ int longestConsecutive(vector<int> &nums) {
     return res;
 }
 
+ListNode *deleteNode(ListNode *head, int val) {
+    if (head == nullptr)
+        return nullptr;
+    /* 哨兵节点 */
+    auto *sentinel = new ListNode;
+    sentinel->next = head;
+    /* 如果待删除节点就是头节点 */
+    if (head->val == val) {
+        sentinel->next = head->next;
+        return sentinel->next;
+    }
+    /* 待删除节点 */
+    auto *d_node = head->next;
+    /* 待删除的上一个节点 */
+    auto *d_node_prev = head;
+    while (d_node && d_node->val != val) {
+        d_node_prev = d_node;
+        d_node = d_node->next;
+    }
+    /* 说明找到了待删除节点 */
+    if (d_node) {
+        d_node_prev->next = d_node->next;
+    }
+    return sentinel->next;
+}
+
+void deleteNode(ListNode *node) {
+    if (node == nullptr)
+        return;
+    /* 删除节点的下一个节点 */
+    auto *d_node_next = node->next;
+    while (d_node_next) {
+        /* 复制下一个val */
+        node->val = d_node_next->val;
+        /* 如果下一个节点的下一个为空时
+         * 说明复制已经完成 */
+        if (d_node_next->next == nullptr) {
+            node->next = nullptr;
+            return;
+        }
+        node = d_node_next;
+        d_node_next = d_node_next->next;
+    }
+}
+
+/* 使用双指针
+ * 间隔k - 1个 */
+ListNode *getKthFromEnd(ListNode *head, int k) {
+    if (head == nullptr)
+        return nullptr;
+    auto *p_first = head;
+    auto *p_second = p_first;
+    /* 间隔 k - 1个元素 */
+    while (k) {
+        p_second = p_second->next;
+        k--;
+    }
+    /* 当p_second为空时
+     * 位置完成 */
+    while (p_second) {
+        p_first = p_first->next;
+        p_second = p_second->next;
+    }
+    return p_first;
+}
 
 
+/* 使用双向队列维护最大值 */
+vector<int> maxSlidingWindow2(vector<int> &nums, int k) {
+    if (nums.empty())
+        return vector<int>();
+    deque<int> max_que_index;
+    vector<int> res;
+    int len = nums.size();
+    for (int i = 0; i < len; ++i) {
+        /* 维护双向队列的合法性 */
+        if (!max_que_index.empty() && max_que_index.front() == i - k)
+            max_que_index.pop_front();
+        /* 双向队列中的所有比当前num小的都pop掉 */
+        while (!max_que_index.empty() && nums[max_que_index.back()] < nums[i])
+            max_que_index.pop_back();
+        /* 压入当前值 */
+        max_que_index.push_back(i);
+        if (i >= k - 1) {
+            res.push_back(nums[max_que_index.front()]);
+        }
+    }
+    return res;
+}
+
+/* 使用二分查找法，查找从1 ~ max(piles[i])之间的正确值 */
+int minEatingSpeed(vector<int> &piles, int H) {
+    if (piles.empty())
+        return 0;
+    /* 虽然本题不会非法
+     * 但还是要检测 */
+    if (H < piles.size())
+        return -1;
+    /* 一个元素的情况 */
+    if (piles.size() == 1) {
+        if (piles[0] % H) {
+            if (piles[0] < H)
+                return 1;
+            else
+                return 2;
+        } else return 1;
+    }
+    /* 找到最大值 */
+    int max_speed = INT_MIN;
+    for (int &pile : piles)
+        max_speed = max(max_speed, pile);
+    int min_speed = 1;
+    int mid;
+    while (min_speed <= max_speed) {
+        /* 一般为了防止内存溢出，需要做加法操作 */
+        mid = min_speed + (max_speed - min_speed) / 2;
+        int hours = speedValid(piles, mid, H);
+        /* 速度过大 */
+        if (hours < H) {
+            max_speed = mid - 1;
+        } else if (hours > H) { // 速度过慢
+            min_speed = mid + 1;
+        } else {
+            return mid;
+        }
+    }
+    return min_speed;
+}
+
+inline int speedValid(vector<int> &piles, int speed, int H) {
+    int hours = 0;
+    for (int pile : piles) {
+        if (pile < speed) {
+            hours++;
+        } else {
+            if (pile % speed)
+                hours += (pile / speed) + 1;
+            else
+                hours += (pile / speed);
+        }
+    }
+    return hours;
+}
+
+/* 使用基数排序 */
+int maximumGap(vector<int> &nums) {
+    int len = nums.size();
+    if (len < 2) {
+        return 0;
+    }
+    /* 初始化divisor为1 */
+    int divisor = 1;
+    vector<vector<int>> basic_nums;
+    /* 临时数组 */
+    vector<int> buf;
+    /* 奇数遍历 */
+    return 0;
+}
 
 
+/* 排序（以左区间进行排序）
+ * 如果当前区间头小于上一个区间尾
+ * 因为排序的情况下，当前区间的区间头会最接近上一个区间尾
+ * 我们只需要保留覆盖程度最小的区间
+ * 所以
+ * 移除，保留更小的区间尾
+ * 其他情况下更新区间尾部即可 */
+int diary_question::eraseOverlapIntervals(vector<vector<int>> &intervals) {
+    if (intervals.empty())
+        return 0;
+    sort(intervals.begin(), intervals.end(), _cmp);
+    int cnt = 0;
+    int end = intervals[0][1];
+    int len = intervals.size();
+    for (int i = 1; i < len; ++i) {
+        if (intervals[i][0] < end) {
+            end = min(end, intervals[i][1]);
+            cnt++;
+        } else {
+            end = intervals[i][1];
+        }
+    }
+    return cnt;
+}
 
+static bool diary_question::_cmp(vector<int> &a, vector<int> &b) {
+    return a[0] < b[0];
+}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+/* 使用间隔双指针 */
+bool diary_question::canPlaceFlowers(vector<int> &flowerbed, int n) {
+    if (n <= 0)
+        return true;
+    /* 花坛为空的情况 */
+    if (flowerbed.empty()) {
+        if (n > 0)
+            return false;
+        if (n <= 0)
+            return true;
+    }
+    /* 三个指针下标 */
+    int left, cur, right;
+    int len = flowerbed.size();
+    left = 0, right = left + 1;
+    for (int i = 0; i < len - 1; ++i) {
+        /* 如果两边都没有中化，并且当前位置也没有种花 */
+        if (flowerbed[left] == 0 && flowerbed[right] == 0) {
+            if (flowerbed[i] == 0) {
+                /* 不要忘记置1 */
+                flowerbed[i] = 1;
+                n--;
+            }
+            if (n == 0)
+                return true;
+        }
+        /* 第一次判断 */
+        if (i == 0) {
+            right++;
+        } else {
+            left++;
+            right++;
+        }
+    }
+    /* 还要进行最后一次判断 */
+    if (flowerbed[right - 1] == 0 && flowerbed[left] == 0)
+        n--;
+    return n == 0;
+}
